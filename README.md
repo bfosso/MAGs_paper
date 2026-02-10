@@ -9,8 +9,10 @@ Grazia Visci 1†, Elisabetta Notario 2†, Giuseppe Defazio 1†, Mariano Franc
 † These authors contributed equally to this work.<br/>
 \* Correspondence: bruno.fosso@uniba.it (BF); m.marzano@ibiom.cnr.it (MM)
 
-DOI: https://doi.org/10.21203/rs.3.rs-7581938/v1
+-------
+Currently the manuscript is available as _pre-print at DOI: [https://doi.org/10.21203/rs.3.rs-7581938/v1](https://doi.org/10.21203/rs.3.rs-7581938/v1).  
 
+-------
 This repository collects bioinformatics approaches for benchmarking sequencing technologies in microbiome data assembly used for this manuscript.
 
 ## 1) Raw data trimming, assembly and, mapping on reference genomes
