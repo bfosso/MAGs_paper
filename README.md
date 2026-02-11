@@ -159,5 +159,34 @@ bakta --min-contig-length 200 --db ./reference/bakta_db/db --output ./annotation
 
 ## 7) MAGs quantification
 
+Sequencing data were mapped MAGs. 
+
+a) minimap2 (v2.26-r1175)
+_Illumina_ 
+```
+minimap2 -ax sr
+```
+_Nanopore_
+```
+minimap2 -ax map-ont -L
+```
+_PacBio_ 
+```
+minimap2 -ax map-hifi -L
+```
+b) samtools (v1.3.1)<br/>
+```
+# SAM to BAM conversion
+samtools view
+
+# BAM sorting
+samtools sort
+
+# Filter for properly paired alignments and secondary elimination
+samtools view -ff 1284 
+
+# Coverage computation without any limit
+samtools coverage -d 0
+```
 
 
