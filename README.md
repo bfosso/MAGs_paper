@@ -10,7 +10,7 @@ Grazia Visci 1†, Elisabetta Notario 2†, Giuseppe Defazio 1†, Mariano Franc
 \* Correspondence: bruno.fosso@uniba.it (BF); m.marzano@ibiom.cnr.it (MM)
 
 -------
-Currently the manuscript is available as _pre-print at DOI: [https://doi.org/10.21203/rs.3.rs-7581938/v1](https://doi.org/10.21203/rs.3.rs-7581938/v1).  
+Currently the manuscript is available as _pre-print_ at DOI: [https://doi.org/10.21203/rs.3.rs-7581938/v1](https://doi.org/10.21203/rs.3.rs-7581938/v1).  
 
 -------
 This repository collects bioinformatics approaches for benchmarking sequencing technologies in microbiome data assembly used for this manuscript.
@@ -63,18 +63,101 @@ d) metaMDBG (v1.0)
 ```
 metaMDBG asm –in-hifi
 ```
+## 2) Mapping on reference genomes and reference coverage
+Sequencing data were mapped on the 20 prokaryotic strain reference genomes. 
 
-## 2) Assembly evaluation, binning and bin refinement
+a) minimap2 (v2.26-r1175)
+_Illumina_ 
+```
+minimap2 -ax sr
+```
+_Nanopore_
+```
+minimap2 -ax map-ont -L
+```
+_PacBio_ 
+```
+minimap2 -ax map-hifi -L
+```
+b) samtools (v1.3.1)<br/>
+```
+# SAM to BAM conversion
+samtools view
+
+# BAM sorting
+samtools sort
+
+# Filter for properly paired alignments and secondary elimination
+samtools view -ff 1284 
+
+# Coverage computation without any limit
+samtools coverage -d 0
+```
+
+## 3) Assembly evaluation, binning and bin refinement
 
 a) metaQUAST (v5.2.0) 
 ```
 metaquast.py contigs_1 contigs_2 ... -r reference_1,reference_2,reference_3
 ```
 b) Seqkit (v2.8.2)
-```,
+```
 seqkit stats -j10 -t -a
 ```
+c) metaWRAP: metaBAT2 (v2.12.1), MaxBin2 (2.2.4), CONCOT (v1.0.0)
+```
+# Binning
+metawrap binning --universal --metabat2 --maxbin2 --concoct \
+-a contigs.fasta \
+-o not_refined \
+samples_1.fastq \
+samples_2.fastq
 
+# refinement
+metawrap \
+bin_refinement -c 50 -x 10 \
+-o refined \
+-A not_refined/metabat2_bins \
+-B not_refined/maxbin2_bins \
+-C not_refined/concoct_bins
+```
+
+## 4) MAGs comparison to reference genomes
+a) MASH (v2.3)
+```
+mash sketch -k 21 -s 15000
+```
+
+b) GTDB-tk (v2.1.1)
+```
+gtdbtk classify_wf --genome_dir ./refined \
+                   --out_dir ./gtdbtk_refined \
+                   --cpus 10 \
+                   -x gz
+```
+
+c) kMetaShot (v2.0)
+
+```
+kMetaShot_classifier_NV.py -b ./refined \
+                           -r kMetaShot_reference.h5 \
+                           -p 10 \
+                           -o kMetaShot_refined
+```
+
+## 5) MAGs Dereplication
+dRep (v3.5.0)
+```
+dRep dereplicate --ignoreGenomeQuality --genomeInfo
+```
+
+## 6) MAGs Genes Annotation
+Bakta (v1.4.0)
+```
+bakta --min-contig-length 200 --db ./reference/bakta_db/db --output ./annotation_on_drep --prefix annotation_on_drep --threads 10 ./dereplicated_genomes
+```
+
+## 7) MAGs quantification
 
 
 
