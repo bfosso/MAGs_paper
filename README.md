@@ -155,11 +155,21 @@ cd ..
 ```
 
 ### 1.3 PacBio data analysis and assembly
+Prepare the working dir for PacBio data:  
+```
+mkdir -p pacbio_data && cd pacbio_data
 
+# Put the downloaded Nanopore data in this folder
+# mv /DOWNLOAD/PATH/ERR15084350.fastq.gz .
+```
 a) _FastQC (v0.11.9) evaluation of reads_<br/>
 b) _Cutadapt (v4.5) for adapter trimming_
 ```
-cutadapt --overlap 35 -e 0.1 --discard -j 5 --revcomp
+cutadapt --overlap 35 -e 0.1 \
+        --discard -j 5 --revcomp \
+        -b file:pacbio_adapter.fa \
+        -o ERR15084350.trimmed_hifi.fastq \
+        ERR15084350.fastq.gz
 ```
 c) _metaFlye (v2.9.2-b1786)_
 ```
@@ -167,6 +177,8 @@ flye --pacbio-hifi --meta -i 5
 ```
 d) metaMDBG (v1.0)
 ```
+mkdir -p metamdbg_nanopore && cd metamdbg_nanopore 
+
 metaMDBG asm –in-hifi
 ```
 ## 2) Mapping on reference genomes and reference coverage
