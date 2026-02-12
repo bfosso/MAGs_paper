@@ -37,16 +37,16 @@ In **Table 1** are shown the available files.
 
 ## Raw data trimming, assembly and, mapping on reference genomes
 ### 1 Illumina data analysis and assembly
-
-a) Data quality evaluation with _*FastQC* (v0.11.9) evaluation of reads_
-b) _Trimmomatic (v0.11.9)_
+Prepare the working directory for Illumina data:  
 ```
 mkdir -p Illumina_data && cd Illumina_data
 
 # Put the downloaded Illumina data in this folder
 # mv /DOWNLOAD/PATH/ERR15084348_*.fastq.gz .
-
-conda activate assembly
+```
+a) Data quality evaluation with _*FastQC* (v0.11.9) evaluation of reads_
+b) _Trimmomatic (v0.11.9)_
+```conda activate assembly
 
 sample=ERR15084348
 forward=ERR15084348_1.fastq.gz
@@ -87,9 +87,15 @@ metawrap assembly \
     -t 50 \
     --megahit \
     -o megahit_assembly
+    
+cd ..
 ```
 d) _Assembly with metaSPAdes (v3.15.5)_
-Initially prepare the `dataset.yml` file as follow:  
+```
+mkdir -p metaspades_data && cd metaspades_data
+mkdir -p TMP
+```
+Prepare the `dataset.yml` file as follow:  
 ```
 - "left reads":
   - "PATH_to_forward_reads"
@@ -106,23 +112,46 @@ spades.py --meta \
     -t 35  --dataset dataset.yml \
     -m 500 \
     --phred-offset 33 \
-    --tmp-dir /home3/bfosso/Metodi_Metabarcoding/Shotgun/tmp
+    --tmp-dir ${pwd}/TMP
+    
+cd ..
 ```
 
 ### 1.2 Nanopore data analysis and assembly
+Prepare the working dir for Nanopore data:  
+```
+mkdir -p nanopore_data && cd nanopore_data
 
+# Put the downloaded Nanopore data in this folder
+# mv /DOWNLOAD/PATH/ERR15084349.fastq.gz .
+```
 a) _pycoQC evaluation of reads_<br/>
 b) _Porechop abi (v0.5.0) for adapters trimming_
 ```
-porechop_abi --ab_initio --format fastq.gz -i input_reads.fastq.gz -o output_reads.fastq.gz
+conda activate NANOPORE
+
+porechop_abi --ab_initio --format fastq.gz -i ERR15084349.fastq.gz -o ERR15084349_trimmed.fastq.gz
 ```
 c) _Assembly with metaFlye (v2.9.2-b1786)_
 ```
-flye --nano-raw –meta -i 5
+mkdir -p flye_nanopore && cd flye_nanopore 
+
+flye --nano-raw ERR15084349_trimmed.fastq.gz \
+ -o assembly \
+ -t 50 \
+ -i 5 --meta
+ 
+ cd ..
 ```
 d) _Assembly with metaMDBG (v1.0)_
 ```
-metaMDBG asm –in-ont
+mkdir -p metamdbg_nanopore && cd metamdbg_nanopore 
+
+metaMDBG asm --out-dir ./assembly/ \
+     --in-ont ERR15084349_trimmed.fastq.gz \
+     --threads 50
+
+cd ..
 ```
 
 ### 1.3 PacBio data analysis and assembly
