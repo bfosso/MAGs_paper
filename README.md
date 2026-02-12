@@ -15,21 +15,98 @@ Currently the manuscript is available as _pre-print_ at DOI: [https://doi.org/10
 -------
 This repository collects bioinformatics approaches for benchmarking sequencing technologies in microbiome data assembly used for this manuscript.
 
-## 1) Raw data trimming, assembly and, mapping on reference genomes
-### 1.1 Illumina data analysis and assembly
+## Environment Settings and Data download 
+### 1) Create the conda environment required to reproduce data analysis
+To properly installa and configure the required virtual environments (VEs) you need to install the **CONDA** manager.  
+You can find the most appropriate info for you system [here](https://docs.conda.io/projects/conda/en/latest/index.html).  
+In the `VE_yaml` folder are available the different emplyed VEs. To generate it on you system, pleass use the followin line:  
+```
+conda env create -f environment.yml
+```
+Please change `environment.yml` with the specific yaml file you want to use.  
 
-a) _FastQC (v0.11.9) evaluation of reads_<br/>
+### 2) Dowload data from ENA database
+All raw sequencing data are available in under the bioproject [PRJEB89875](https://www.ebi.ac.uk/ena/browser/view/PRJEB89875).  
+In **Table 1** are shown the available files.  
+
+| Sequencing Technology |    Platform    |     Data Accession Numner    |   Layout   |
+|:---------------------:|:--------------:|:----------------------------:|:----------:|
+|     **Illumina**      | _Novaseq 6000_ |          ERR15084348         | Paired End |
+|     **Nanopore**      |   _GridION_    |          ERR15084349         | Single End |
+|      **PacBio**       |       _Sequel IIe System_       | ERR15084350   | Single End |
+
+## Raw data trimming, assembly and, mapping on reference genomes
+### 1 Illumina data analysis and assembly
+
+a) Data quality evaluation with _*FastQC* (v0.11.9) evaluation of reads_
 b) _Trimmomatic (v0.11.9)_
 ```
-trimmomatic PE ILLUMINACLIP LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:50 
+mkdir -p Illumina_data && cd Illumina_data
+
+# Put the downloaded Illumina data in this folder
+# mv /DOWNLOAD/PATH/ERR15084348_*.fastq.gz .
+
+conda activate assembly
+
+sample=ERR15084348
+forward=ERR15084348_1.fastq.gz
+reverse=ERR15084348_2.fastq.gz
+
+trimmomatic PE \
+-phred33 \
+$forward \
+$reverse \
+${sample}_forward_paired.fq.gz \
+${sample}_forward_unpaired.fq.gz \
+${sample}_reverse_paired.fq.gz \
+${sample}_reverse_unpaired.fq.gz \
+-summary ${sample}_trimmomatic.summary.log \
+ILLUMINACLIP:${CONDA_PREFIX}/envs/assembly/share/trimmomatic-0.39-2/adapters/NexteraPE-PE.fa:3:30:10 \
+LEADING:3 \
+TRAILING:3 \
+SLIDINGWINDOW:4:15 \
+MINLEN:50 
 ```
-c) _Assembly with megaHIT (v1.2.9)_
+c) _Activate metawrap environment and prepare data_
 ```
-megahit --k-list 21, 29, 39, 59, 79, 99, 119, 141 --k-step 10 --min_count 2
+conda activate metawrap-env 
+
+# metawrap requires uncompressed files
+gzip -d *fastq.gz
+forward_trimmed_data=${pwd}/${sample}_forward_paired.fq.gz 
+reverse_trimmed_data=${pwd}/${sample}_reverse_paired.fq.gz
+```
+d) _Assembly with megaHIT (v1.2.9)_
+```
+mkdir -p megahit_data && cd megahit_data
+
+metawrap assembly \
+    -1  $forward_trimmed_data \
+    -2 $reverse_trimmed_data \
+    -m 50 \
+    -t 50 \
+    --megahit \
+    -o megahit_assembly
 ```
 d) _Assembly with metaSPAdes (v3.15.5)_
+Initially prepare the `dataset.yml` file as follow:  
 ```
-spades.py --meta -k 21,29,39,59,79,99,119 -m 500 --phred-offset 33
+- "left reads":
+  - "PATH_to_forward_reads"
+  "orientation": "fr"
+  "right reads":
+  - "PATH_to_reverese_reads"
+  "type": "paired-end"
+```
+Apply SPAdes:  
+```
+spades.py --meta \
+    -o metaspades_assembly_result \
+    -k 21,29,39,59,79,99,119 \
+    -t 35  --dataset dataset.yml \
+    -m 500 \
+    --phred-offset 33 \
+    --tmp-dir /home3/bfosso/Metodi_Metabarcoding/Shotgun/tmp
 ```
 
 ### 1.2 Nanopore data analysis and assembly
