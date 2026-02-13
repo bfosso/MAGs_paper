@@ -10,7 +10,7 @@ Grazia Visci 1†, Elisabetta Notario 2†, Giuseppe Defazio 1†, Mariano Franc
 \* Correspondence: bruno.fosso@uniba.it (BF); m.marzano@ibiom.cnr.it (MM)
 
 -------
-Currently the manuscript is available as _pre-print_ at DOI: [https://doi.org/10.21203/rs.3.rs-7581938/v1](https://doi.org/10.21203/rs.3.rs-7581938/v1).  
+Currently, the manuscript is available as _pre-print_ at DOI: [https://doi.org/10.21203/rs.3.rs-7581938/v1](https://doi.org/10.21203/rs.3.rs-7581938/v1).  
 
 -------
 This repository collects bioinformatics approaches for benchmarking sequencing technologies in microbiome data assembly used for this manuscript.
@@ -35,7 +35,7 @@ In **Table 1** are shown the available files.
 |     **Nanopore**      |   _GridION_    |          ERR15084349         | Single End |
 |      **PacBio**       |       _Sequel IIe System_       | ERR15084350   | Single End |
 
-## Raw data trimming, assembly and, mapping on reference genomes
+## Raw data trimming, mapping on reference genomes, assembly and binning
 ### 1 Illumina data analysis and assembly
 Prepare the working directory for Illumina data:  
 ```
@@ -46,7 +46,8 @@ mkdir -p Illumina_data && cd Illumina_data
 ```
 a) Data quality evaluation with _*FastQC* (v0.11.9) evaluation of reads_
 b) _Trimmomatic (v0.11.9)_
-```conda activate assembly
+```
+conda activate assembly
 
 sample=ERR15084348
 forward=ERR15084348_1.fastq.gz
@@ -117,7 +118,7 @@ spades.py --meta \
 cd ..
 ```
 
-### 1.2 Nanopore data analysis and assembly
+### 2 Nanopore data analysis and assembly
 Prepare the working dir for Nanopore data:  
 ```
 mkdir -p nanopore_data && cd nanopore_data
@@ -154,7 +155,7 @@ metaMDBG asm --out-dir ./assembly/ \
 cd ..
 ```
 
-### 1.3 PacBio data analysis and assembly
+### 3 PacBio data analysis and assembly
 Prepare the working dir for PacBio data:  
 ```
 mkdir -p pacbio_data && cd pacbio_data
@@ -173,13 +174,28 @@ cutadapt --overlap 35 -e 0.1 \
 ```
 c) _metaFlye (v2.9.2-b1786)_
 ```
-flye --pacbio-hifi --meta -i 5
+conda activate NANOPORE
+
+mkdir -p flye_pacbio && cd flye_pacbio
+
+flye --pacbio-hifi ../RR15084350.trimmed_hifi.fastq \
+ -o assembly \
+ -t 50 \
+ -i 5 --meta
+ 
+ cd ..
 ```
 d) metaMDBG (v1.0)
 ```
-mkdir -p metamdbg_nanopore && cd metamdbg_nanopore 
+conda activate NANOPORE
 
-metaMDBG asm –in-hifi
+mkdir -p metamdbg_pacbio && cd metamdbg_pacbio 
+
+metaMDBG asm --out-dir ./assembly/ \
+    --in-hifi ../ERR15084350.trimmed_hifi.fastq \
+    --threads 50
+    
+cd ..
 ```
 ## 2) Mapping on reference genomes and reference coverage
 Sequencing data were mapped on the 20 prokaryotic strain reference genomes. 
