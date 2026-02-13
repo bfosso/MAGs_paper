@@ -1,5 +1,12 @@
-# Benchmarking short and Long Read Sequencing Technologies for Metagenomic Profiling of Microbiomes
+Benchmarking short and Long Read Sequencing Technologies for Metagenomic Profiling of Microbiomes
+=====
 
+Content:
+- [Introduction](#introduction)
+- [Environment Settings and Data download](#environment-settings-and-data-download-)
+
+
+# Introduction
 Grazia Visci 1†, Elisabetta Notario 2†, Giuseppe Defazio 1†, Mariano Francesco Caratozzolo 2, Bruno Fosso 1*, Marinella Marzano 2*, Graziano Pesole 1,2,3
 
 1) Department of Biosciences, Biotechnology and Environment, University of Bari Aldo Moro, 70125 Bari, Italy.
@@ -15,7 +22,7 @@ Currently, the manuscript is available as _pre-print_ at DOI: [https://doi.org/1
 -------
 This repository collects bioinformatics approaches for benchmarking sequencing technologies in microbiome data assembly used for this manuscript.
 
-## Environment Settings and Data download 
+# Environment Settings and Data download 
 ### 1) Create the conda environment required to reproduce data analysis
 To properly installa and configure the required virtual environments (VEs) you need to install the **CONDA** manager.  
 You can find the most appropriate info for you system [here](https://docs.conda.io/projects/conda/en/latest/index.html).  
