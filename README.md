@@ -7,10 +7,12 @@ Content:
 
 
 # Introduction
-Grazia Visci 1†, Elisabetta Notario 2†, Giuseppe Defazio 1†, Mariano Francesco Caratozzolo 2, Bruno Fosso 1*, Marinella Marzano 2*, Graziano Pesole 1,2,3
+Grazia Visci 1†, Elisabetta Notario 2†, Giuseppe Defazio 1†, Mariano Francesco Caratozzolo 2, Bruno Fosso 1*, Marinella 
+Marzano 2*, Graziano Pesole 1,2,3
 
 1) Department of Biosciences, Biotechnology and Environment, University of Bari Aldo Moro, 70125 Bari, Italy.
-2) Institute of Biomembranes, Bioenergetics and Molecular Biotechnologies, Consiglio Nazionale delle Ricerche, 70126 Bari, Italy.
+2) Institute of Biomembranes, Bioenergetics and Molecular Biotechnologies, Consiglio Nazionale delle Ricerche, 70126 
+3) Bari, Italy.
 3) Consorzio Interuniversitario Biotecnologie, 34148 Trieste, Italy.
 
 † These authors contributed equally to this work.<br/>
@@ -20,19 +22,21 @@ Grazia Visci 1†, Elisabetta Notario 2†, Giuseppe Defazio 1†, Mariano Franc
 Currently, the manuscript is available as _pre-print_ at DOI: [https://doi.org/10.21203/rs.3.rs-7581938/v1](https://doi.org/10.21203/rs.3.rs-7581938/v1).  
 
 -------
-This repository collects bioinformatics approaches for benchmarking sequencing technologies in microbiome data assembly used for this manuscript.
+This repository collects bioinformatics approaches for benchmarking sequencing technologies in microbiome data assembly 
+used for this manuscript.
 
 # Environment Settings and Data download 
 ### 1) Create the conda environment required to reproduce data analysis
 To properly installa and configure the required virtual environments (VEs) you need to install the **CONDA** manager.  
 You can find the most appropriate info for you system [here](https://docs.conda.io/projects/conda/en/latest/index.html).  
-In the `VE_yaml` folder are available the different emplyed VEs. To generate it on you system, pleass use the followin line:  
+In the `VE_yaml` folder are available the different emplyed VEs. To generate it on you system, please use the following 
+line:  
 ```
 conda env create -f environment.yml
 ```
 Please change `environment.yml` with the specific yaml file you want to use.  
 
-### 2) Dowload data from ENA database
+### 2) Download data from ENA database
 All raw sequencing data are available in under the bioproject [PRJEB89875](https://www.ebi.ac.uk/ena/browser/view/PRJEB89875).  
 In **Table 1** are shown the available files.  
 
@@ -44,15 +48,15 @@ In **Table 1** are shown the available files.
 
 ## Raw data trimming, mapping on reference genomes, assembly and binning
 ### 1 Illumina data analysis and assembly
-Prepare the working directory for Illumina data:  
+#### Prepare the working directory for Illumina data:  
 ```
 mkdir -p Illumina_data && cd Illumina_data
 
 # Put the downloaded Illumina data in this folder
 # mv /DOWNLOAD/PATH/ERR15084348_*.fastq.gz .
 ```
-a) Data quality evaluation with _*FastQC* (v0.11.9) evaluation of reads_
-b) _Trimmomatic (v0.11.9)_
+#### Data quality evaluation with _*FastQC* (v0.11.9) evaluation of reads_
+#### _Trimmomatic (v0.11.9)_
 ```
 conda activate assembly
 
@@ -75,7 +79,7 @@ TRAILING:3 \
 SLIDINGWINDOW:4:15 \
 MINLEN:50 
 ```
-c) _Activate metawrap environment and prepare data_
+#### _Activate metawrap environment and prepare data_
 ```
 conda activate metawrap-env 
 
@@ -84,7 +88,7 @@ gzip -d *fastq.gz
 forward_trimmed_data=${pwd}/${sample}_forward_paired.fq.gz 
 reverse_trimmed_data=${pwd}/${sample}_reverse_paired.fq.gz
 ```
-d) _Assembly with megaHIT (v1.2.9)_
+#### _Assembly with megaHIT (v1.2.9)_
 ```
 mkdir -p megahit_data && cd megahit_data
 
@@ -98,7 +102,7 @@ metawrap assembly \
     
 cd ..
 ```
-d) _Assembly with metaSPAdes (v3.15.5)_
+#### _Assembly with metaSPAdes (v3.15.5)_
 ```
 mkdir -p metaspades_data && cd metaspades_data
 mkdir -p TMP
@@ -126,21 +130,21 @@ cd ..
 ```
 
 ### 2 Nanopore data analysis and assembly
-Prepare the working dir for Nanopore data:  
+#### Prepare the working dir for Nanopore data:  
 ```
 mkdir -p nanopore_data && cd nanopore_data
 
 # Put the downloaded Nanopore data in this folder
 # mv /DOWNLOAD/PATH/ERR15084349.fastq.gz .
 ```
-a) _pycoQC evaluation of reads_<br/>
-b) _Porechop abi (v0.5.0) for adapters trimming_
+#### _pycoQC evaluation of reads_<br/>
+#### _Porechop abi (v0.5.0) for adapters trimming_
 ```
 conda activate NANOPORE
 
 porechop_abi --ab_initio --format fastq.gz -i ERR15084349.fastq.gz -o ERR15084349_trimmed.fastq.gz
 ```
-c) _Assembly with metaFlye (v2.9.2-b1786)_
+#### _Assembly with metaFlye (v2.9.2-b1786)_
 ```
 mkdir -p flye_nanopore && cd flye_nanopore 
 
@@ -151,7 +155,7 @@ flye --nano-raw ERR15084349_trimmed.fastq.gz \
  
  cd ..
 ```
-d) _Assembly with metaMDBG (v1.0)_
+#### _Assembly with metaMDBG (v1.0)_
 ```
 mkdir -p metamdbg_nanopore && cd metamdbg_nanopore 
 
@@ -163,15 +167,15 @@ cd ..
 ```
 
 ### 3 PacBio data analysis and assembly
-Prepare the working dir for PacBio data:  
+#### Prepare the working dir for PacBio data:  
 ```
 mkdir -p pacbio_data && cd pacbio_data
 
 # Put the downloaded Nanopore data in this folder
 # mv /DOWNLOAD/PATH/ERR15084350.fastq.gz .
 ```
-a) _FastQC (v0.11.9) evaluation of reads_<br/>
-b) _Cutadapt (v4.5) for adapter trimming_
+#### _FastQC (v0.11.9) evaluation of reads_<br/>
+#### _Cutadapt (v4.5) for adapter trimming_
 ```
 cutadapt --overlap 35 -e 0.1 \
         --discard -j 5 --revcomp \
@@ -179,7 +183,7 @@ cutadapt --overlap 35 -e 0.1 \
         -o ERR15084350.trimmed_hifi.fastq \
         ERR15084350.fastq.gz
 ```
-c) _metaFlye (v2.9.2-b1786)_
+#### _metaFlye (v2.9.2-b1786)_
 ```
 conda activate NANOPORE
 
@@ -192,7 +196,7 @@ flye --pacbio-hifi ../RR15084350.trimmed_hifi.fastq \
  
  cd ..
 ```
-d) metaMDBG (v1.0)
+#### metaMDBG (v1.0)
 ```
 conda activate NANOPORE
 
