@@ -5,6 +5,7 @@ Content:
 - [Introduction](#introduction)
 - [Environment Settings and Data download](#environment-settings-and-data-download-)
 - [Mapping on ATCC reference genomes and coverage and sequencing depth estimation](#mapping-on-atcc-reference-genomes-and-coverage-and-sequencing-depth-estimation)
+- [Assembly evaluation, binning and bin refinement](#assembly-evaluation-binning-and-bin-refinement)
 - []()
 
 
@@ -38,6 +39,12 @@ conda env create -f environment.yml
 ```
 Please change `environment.yml` with the specific yaml file you want to use.  
 
+Let' create some useful environmental variable:  
+```
+mkdir -p Short_VS_Long_reads && cd Short_VS_Long_reads
+main_folder=$(pwd)
+```
+
 ### 2) Download data from ENA database
 All raw sequencing data are available in under the bioproject [PRJEB89875](https://www.ebi.ac.uk/ena/browser/view/PRJEB89875).  
 In **Table 1** are shown the available files.  
@@ -52,6 +59,7 @@ In **Table 1** are shown the available files.
 ### 1 Illumina data analysis and assembly
 #### Prepare the working directory for Illumina data:  
 ```
+cd $main_folder
 mkdir -p Illumina_data && cd Illumina_data
 
 # Put the downloaded Illumina data in this folder
@@ -140,6 +148,7 @@ cd ..
 ### 2 Nanopore data analysis and assembly
 #### Prepare the working dir for Nanopore data:  
 ```
+cd $main_folder
 mkdir -p nanopore_data && cd nanopore_data
 
 # Put the downloaded Nanopore data in this folder
@@ -183,6 +192,7 @@ cd ..
 ### 3 PacBio data analysis and assembly
 #### Prepare the working dir for PacBio data:  
 ```
+cd $main_folder
 mkdir -p pacbio_data && cd pacbio_data
 
 # Put the downloaded Nanopore data in this folder
@@ -307,6 +317,7 @@ samtools coverage --ff 1284 \
 ### Illumina
 #### metaQUAST (v5.2.0) 
 ```
+cd $main_folder
 cd Illumina_data
 conda activate NANOPORE
 
@@ -318,7 +329,7 @@ metaquast -o megahit_data/metaquast_Illumina_megahit_assembly -t 30 \
     --rna-finding megahit_data/megahit_assembly/final_assembly.fasta
     
 metaquast -o metaspades_data/metaquast_Illumina_metaspades_assembly -t 30 \
-    -l "Mock 20 Strain Illumina megahit Assembly" \
+    -l "Mock 20 Strain Illumina metaSPAdes Assembly" \
     -1 ERR15084348_forward_paired.fastq \
     -2 ERR15084348_reverse_paired.fastq \
     -r ../mock_MAGs/ATCC_Mock_20_Strain_ref/Acinetobacter_baumannii_ATCC_17978.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Deinococcus_radiodurans_ATCC_BAA_816.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Neisseria_meningitidis_ATCC_BAA_335.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Schaalia_odontolytica_ATCC_17982.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Bacillus_pacificus_ATCC_10987.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Enterococcus_faecalis_ATCC_47077.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Phocaeicola_vulgatus_ATCC_8482.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Staphylococcus_aureus_subsp_aureus_ATCC_BAA_1556.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Bifidobacterium_adolescentis_ATCC_15703.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Escherichia_coli_ATCC_700926.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Porphyromonas_gingivalis_ATCC_33277.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Staphylococcus_epidermidis_ATCC_12228.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Clostridium_beijerinckii_ATCC_35702.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Helicobacter_pylori_ATCC_700392.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Pseudomonas_aeruginosa_ATCC_9027.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Streptococcus_agalactiae_ATCC_BAA_611.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Cutibacterium_acnes_ATCC_11828.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Lactobacillus_gasseri_ATCC_33323.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Rhodobacter_sphaeroides_ATCC_17029.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Streptococcus_mutans_ATCC_700610.fasta \
@@ -371,8 +382,159 @@ metawrap bin_refinement -o BIN_REFINEMENT_c90_x5 \
     -x 5
 ```
 
+### Nanopore
+#### metaQUAST (v5.2.0) 
+```
+cd $main_folder
+cd nanopore_data
+conda activate NANOPORE
+
+metaquast -o flye_nanopore/metaquast_nanopore_flye_assembly -t 30 \
+    -l "Mock 20 Strain Nanopore flye Assembly" \
+    -1 ERR15084349_trimmed.fastq.gz \
+    -r ../mock_MAGs/ATCC_Mock_20_Strain_ref/Acinetobacter_baumannii_ATCC_17978.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Deinococcus_radiodurans_ATCC_BAA_816.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Neisseria_meningitidis_ATCC_BAA_335.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Schaalia_odontolytica_ATCC_17982.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Bacillus_pacificus_ATCC_10987.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Enterococcus_faecalis_ATCC_47077.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Phocaeicola_vulgatus_ATCC_8482.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Staphylococcus_aureus_subsp_aureus_ATCC_BAA_1556.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Bifidobacterium_adolescentis_ATCC_15703.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Escherichia_coli_ATCC_700926.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Porphyromonas_gingivalis_ATCC_33277.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Staphylococcus_epidermidis_ATCC_12228.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Clostridium_beijerinckii_ATCC_35702.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Helicobacter_pylori_ATCC_700392.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Pseudomonas_aeruginosa_ATCC_9027.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Streptococcus_agalactiae_ATCC_BAA_611.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Cutibacterium_acnes_ATCC_11828.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Lactobacillus_gasseri_ATCC_33323.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Rhodobacter_sphaeroides_ATCC_17029.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Streptococcus_mutans_ATCC_700610.fasta \
+    --rna-finding flye_nanopore/assembly/assembly.fasta
+    
+metaquast -o metamdbg_nanopore/metaquast_nanopore_metamdbg_assembly -t 30 \
+    -l "Mock 20 Strain Nanopore metaMDBG Assembly" \
+    -1 ERR15084349_trimmed.fastq.gz \
+    -r ../mock_MAGs/ATCC_Mock_20_Strain_ref/Acinetobacter_baumannii_ATCC_17978.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Deinococcus_radiodurans_ATCC_BAA_816.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Neisseria_meningitidis_ATCC_BAA_335.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Schaalia_odontolytica_ATCC_17982.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Bacillus_pacificus_ATCC_10987.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Enterococcus_faecalis_ATCC_47077.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Phocaeicola_vulgatus_ATCC_8482.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Staphylococcus_aureus_subsp_aureus_ATCC_BAA_1556.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Bifidobacterium_adolescentis_ATCC_15703.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Escherichia_coli_ATCC_700926.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Porphyromonas_gingivalis_ATCC_33277.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Staphylococcus_epidermidis_ATCC_12228.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Clostridium_beijerinckii_ATCC_35702.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Helicobacter_pylori_ATCC_700392.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Pseudomonas_aeruginosa_ATCC_9027.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Streptococcus_agalactiae_ATCC_BAA_611.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Cutibacterium_acnes_ATCC_11828.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Lactobacillus_gasseri_ATCC_33323.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Rhodobacter_sphaeroides_ATCC_17029.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Streptococcus_mutans_ATCC_700610.fasta \
+    --rna-finding metamdbg_nanopore/assembly/contigs.fasta
+```
+
+#### Binning & Refinement
+metaWRAP: metaBAT2 (v2.12.1), MaxBin2 (2.2.4), CONCOT (v1.0.0)
+```
+cd flye_nanopore
+
+metawrap binning -o INITIAL_BINNING -t 96 \
+    -a assembly/assembly.fasta \
+    -t 50 \
+    -m 50 \
+    -o INITIAL_BINNING \
+    --universal \
+    --run-checkm $single \
+    --metabat2 \
+    --maxbin2 \
+    --concoct ../ERR15084349_trimmed.fastq
+    
+metawrap bin_refinement -o BIN_REFINEMENT_c90_x5 \
+    -t 96 \
+    -A INITIAL_BINNING/metabat2_bins/ \
+    -B INITIAL_BINNING/maxbin2_bins/ \
+    -C INITIAL_BINNING/concoct_bins/ \
+    -c 90 \
+    -x 5
+    
+cd ../metamdbg_nanopore
+
+metawrap binning -o INITIAL_BINNING -t 96 \
+    -a assembly/contigs.fasta
+    -t 50 \
+    -m 50 \
+    -o INITIAL_BINNING \
+    --universal \
+    --run-checkm $single \
+    --metabat2 \
+    --maxbin2 \
+    --concoct ../ERR15084349_trimmed.fastq
+    
+metawrap bin_refinement -o BIN_REFINEMENT_c90_x5 \
+    -t 96 \
+    -A INITIAL_BINNING/metabat2_bins/ \
+    -B INITIAL_BINNING/maxbin2_bins/ \
+    -C INITIAL_BINNING/concoct_bins/ \
+    -c 90 \
+    -x 5
+```
+
+### PacBio
+#### metaQUAST (v5.2.0) 
+```
+cd $main_folder
+cd pacbio_data
+conda activate NANOPORE
+
+metaquast -o flye_pacbio/metaquast_pacbio_flye_assembly -t 30 \
+    -l "Mock 20 Strain PacBio flye Assembly" \
+    -1 ERR15084349_trimmed.fastq.gz \
+    -r ../mock_MAGs/ATCC_Mock_20_Strain_ref/Acinetobacter_baumannii_ATCC_17978.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Deinococcus_radiodurans_ATCC_BAA_816.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Neisseria_meningitidis_ATCC_BAA_335.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Schaalia_odontolytica_ATCC_17982.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Bacillus_pacificus_ATCC_10987.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Enterococcus_faecalis_ATCC_47077.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Phocaeicola_vulgatus_ATCC_8482.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Staphylococcus_aureus_subsp_aureus_ATCC_BAA_1556.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Bifidobacterium_adolescentis_ATCC_15703.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Escherichia_coli_ATCC_700926.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Porphyromonas_gingivalis_ATCC_33277.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Staphylococcus_epidermidis_ATCC_12228.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Clostridium_beijerinckii_ATCC_35702.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Helicobacter_pylori_ATCC_700392.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Pseudomonas_aeruginosa_ATCC_9027.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Streptococcus_agalactiae_ATCC_BAA_611.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Cutibacterium_acnes_ATCC_11828.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Lactobacillus_gasseri_ATCC_33323.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Rhodobacter_sphaeroides_ATCC_17029.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Streptococcus_mutans_ATCC_700610.fasta \
+    --rna-finding flye_pacbio/assembly/assembly.fasta
+    
+metaquast -o metamdbg_pacbio/metaquast_pacbio_metamdbg_assembly -t 30 \
+    -l "Mock 20 Strain PacBio metaMDBG Assembly" \
+    -1 ERR15084349_trimmed.fastq.gz \
+    -r ../mock_MAGs/ATCC_Mock_20_Strain_ref/Acinetobacter_baumannii_ATCC_17978.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Deinococcus_radiodurans_ATCC_BAA_816.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Neisseria_meningitidis_ATCC_BAA_335.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Schaalia_odontolytica_ATCC_17982.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Bacillus_pacificus_ATCC_10987.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Enterococcus_faecalis_ATCC_47077.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Phocaeicola_vulgatus_ATCC_8482.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Staphylococcus_aureus_subsp_aureus_ATCC_BAA_1556.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Bifidobacterium_adolescentis_ATCC_15703.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Escherichia_coli_ATCC_700926.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Porphyromonas_gingivalis_ATCC_33277.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Staphylococcus_epidermidis_ATCC_12228.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Clostridium_beijerinckii_ATCC_35702.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Helicobacter_pylori_ATCC_700392.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Pseudomonas_aeruginosa_ATCC_9027.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Streptococcus_agalactiae_ATCC_BAA_611.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Cutibacterium_acnes_ATCC_11828.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Lactobacillus_gasseri_ATCC_33323.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Rhodobacter_sphaeroides_ATCC_17029.fasta,../mock_MAGs/ATCC_Mock_20_Strain_ref/Streptococcus_mutans_ATCC_700610.fasta \
+    --rna-finding metamdbg_pacbio/assembly/contigs.fasta
+```
+
+#### Binning & Refinement
+metaWRAP: metaBAT2 (v2.12.1), MaxBin2 (2.2.4), CONCOT (v1.0.0)
+```
+cd flye_pacbio
+
+metawrap binning -o INITIAL_BINNING -t 96 \
+    -a assembly/assembly.fasta \
+    -t 50 \
+    -m 50 \
+    -o INITIAL_BINNING \
+    --universal \
+    --run-checkm $single \
+    --metabat2 \
+    --maxbin2 \
+    --concoct ../ERR15084349_trimmed.fastq
+    
+metawrap bin_refinement -o BIN_REFINEMENT_c90_x5 \
+    -t 96 \
+    -A INITIAL_BINNING/metabat2_bins/ \
+    -B INITIAL_BINNING/maxbin2_bins/ \
+    -C INITIAL_BINNING/concoct_bins/ \
+    -c 90 \
+    -x 5
+    
+cd ../metamdbg_pacbio
+
+metawrap binning -o INITIAL_BINNING -t 96 \
+    -a assembly/contigs.fasta
+    -t 50 \
+    -m 50 \
+    -o INITIAL_BINNING \
+    --universal \
+    --run-checkm $single \
+    --metabat2 \
+    --maxbin2 \
+    --concoct ../ERR15084349_trimmed.fastq
+    
+metawrap bin_refinement -o BIN_REFINEMENT_c90_x5 \
+    -t 96 \
+    -A INITIAL_BINNING/metabat2_bins/ \
+    -B INITIAL_BINNING/maxbin2_bins/ \
+    -C INITIAL_BINNING/concoct_bins/ \
+    -c 90 \
+    -x 5
+```
 
 ## 4) MAGs comparison to reference genomes
+To facilitate the next steps, we have collected all the reference genomes and obtained refined MAGs in folder.  
+1) Put all MAGs in the same folder and perform taxonomic classification with **kMetaShot**. You can use the `copy_bin.py` script:  
+```
+cd $main_folder
+mkdir -p MAGs_comparision && cd MAGs_comparision
+mkdir -p BIN_folder && cd BIN_folder # put here all the obtained MAGs
+
+python copy_bin.py
+
+cd ..
+```
+2) Execute kMetaShot:  
+```
+conda activate kMetaShot
+kMetaShot_classifier_NV.py -b ./BIN_folder \
+                           -r kMetaShot_reference.h5 \
+                           -p 10 \
+                           -o kMetaShot_refined
+```
+
 a) MASH (v2.3)
 ```
 mash sketch -k 21 -s 15000
