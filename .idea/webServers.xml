@@ -5,7 +5,7 @@
       <webServer id="eb9a0b37-5518-45cc-a8a6-1ddc6bd6cad9" name="recas_storage">
         <fileTransfer rootFolder="/lustre/home/boss" accessType="SFTP" host="ui-al9.recas.ba.infn.it" port="22" sshConfigId="cb890a27-fca9-473c-a7ce-e81b9c428bec" sshConfig="boss@ui-al9.recas.ba.infn.it:22 key" keyPair="true">
           <advancedOptions>
-            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
         </fileTransfer>
       </webServer>

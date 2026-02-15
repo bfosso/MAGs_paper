@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig host="ui-al9.recas.ba.infn.it" id="cb890a27-fca9-473c-a7ce-e81b9c428bec" keyPath="$USER_HOME$/.ssh/id_recas" port="22" nameFormat="DESCRIPTIVE" username="boss" useOpenSSHConfig="true" />
+    </configs>
+  </component>
+</project>
