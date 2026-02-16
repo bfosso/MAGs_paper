@@ -6,10 +6,12 @@ Content:
 - [Environment Settings and Data download](#environment-settings-and-data-download-)
 - [Mapping on ATCC reference genomes and coverage and sequencing depth estimation](#mapping-on-atcc-reference-genomes-and-coverage-and-sequencing-depth-estimation)
 - [Assembly evaluation, binning and bin refinement](#assembly-evaluation-binning-and-bin-refinement)
-- []()
+- [MAGs Dereplication](#mags-dereplication)
+- [MAGs comparison to ATCC reference genomes](#mags-comparison-to-atcc-reference-genomes)
+- [MAGs Genes Annotation](#mags-genes-annotation)
 
 
-# Introduction
+## Introduction
 Grazia Visci 1†, Elisabetta Notario 2†, Giuseppe Defazio 1†, Mariano Francesco Caratozzolo 2, Bruno Fosso 1*, Marinella 
 Marzano 2*, Graziano Pesole 1,2,3
 
@@ -28,7 +30,7 @@ Currently, the manuscript is available as _pre-print_ at DOI: [https://doi.org/1
 This repository collects bioinformatics approaches for benchmarking sequencing technologies in microbiome data assembly 
 used for this manuscript.
 
-# Environment Settings and Data download 
+## Environment Settings and Data download 
 ### 1) Create the conda environment required to reproduce data analysis
 To properly installa and configure the required virtual environments (VEs) you need to install the **CONDA** manager.  
 You can find the most appropriate info for you system [here](https://docs.conda.io/projects/conda/en/latest/index.html).  
@@ -514,7 +516,7 @@ metawrap bin_refinement -o BIN_REFINEMENT_c90_x5 \
     -x 5
 ```
 
-## 4) MAGs comparison to reference genomes
+## MAGs comparison to ATCC reference genomes
 To facilitate the next steps, we have collected all the reference genomes and obtained refined MAGs in folder.  
 1) Put all MAGs in the same folder and perform taxonomic classification with **kMetaShot**. You can use the `copy_bin.py` script:  
 ```
@@ -526,7 +528,7 @@ python copy_bin.py
 
 cd ..
 ```
-2) Execute kMetaShot:  
+2) Execute kMetaShot (please se corresponding documentation to obtain the required reference files):  
 ```
 conda activate kMetaShot
 kMetaShot_classifier_NV.py -b ./BIN_folder \
@@ -535,70 +537,73 @@ kMetaShot_classifier_NV.py -b ./BIN_folder \
                            -o kMetaShot_refined
 ```
 
-a) MASH (v2.3)
+3) Execute MASH (v2.3)
+To perform MASH comparison among MAGs and corresponding ATCC genomes we developed a Python script, to
+ automate the analysis.  
+Initially, we put also the ATCC reference Genomes in MAGs folder:
 ```
-mash sketch -k 21 -s 15000
+conda actvate mash
+
+for genome in ls(${main_folder)/ATCC_Mock_20_Strain_ref)
+do
+  name=$(basename $genome .fasta)
+  cp ${main_folder)/ATCC_Mock_20_Strain_ref/${name}.fasta ${main_folder}/MAGs_comparision/${name}.fa
+done
+
+python perform_genomes_comparisons.py kMetaShot_refined/kMetaShot_classification_resume.csv MAGs_comparision
 ```
 
-b) GTDB-tk (v2.1.1)
+4) MAGs quantification
+Sequencing data were mapped MAGs through minimap2 (v2.26-r1175) and samtools (v1.3.1).  
+To automate mapping and coverage evaluation we developed a `bins_coverage.py` script.
 ```
-gtdbtk classify_wf --genome_dir ./refined \
-                   --out_dir ./gtdbtk_refined \
-                   --cpus 10 \
-                   -x gz
+cd $main_foldeer
+conda activate NANOPORE
+mkdir BIN_coverage
+mkdir TMP
+
+for genome in $(ls ${main_folder}/MAGs_comparision/*.fa)
+ do
+ python bins_coverage.py -b $genome -p 10
+ done
 ```
 
-c) kMetaShot (v2.0)
-
+5) GTDB-tk (v2.1.1)
 ```
-kMetaShot_classifier_NV.py -b ./refined \
-                           -r kMetaShot_reference.h5 \
-                           -p 10 \
-                           -o kMetaShot_refined
+conda activate gtdbtk-2.1.1
+
+gtdbtk identify --genome_dir ${main_folder}/MAGs_comparision --out_dir gtdbtk_identify --extension fa --cpus 20
+gtdbtk align --identify_dir gtdbtk_identify --out_dir gtdbtk_align --cpus 20
+gtdbtk infer --msa_file gtdbtk_align/align/gtdbtk.bac120.user_msa.fasta.gz --out_dir gtdbtk_tree --cpus 20
+
+gtdbtk classify --genome_dir ${main_folder}/MAGs_comparision --extension fasta --align_dir gtdbtk_align --out_dir gtdbtk_classify --cpus 20 --skip_ani_screen
+SRR11606871_flye_bin.8.fa
 ```
 
-## 5) MAGs Dereplication
+## MAGs Dereplication
 dRep (v3.5.0)
 ```
-dRep dereplicate --ignoreGenomeQuality --genomeInfo
+conda activate biobakery3
+
+cd $main_folder
+
+dRep dereplicate -p 50 --clusterAlg ward \
+ -g ${main_folder}/MAGs_comparision/*.fa \
+ --checkm_group_size 20 ref_mock_MAGs_derep_cleaned
 ```
 
-## 6) MAGs Genes Annotation
-Bakta (v1.4.0)
+## MAGs Genes Annotation
+Bakta (v1.4.0) was applied per each genome and ATCC genome.
 ```
-bakta --min-contig-length 200 --db ./reference/bakta_db/db --output ./annotation_on_drep --prefix annotation_on_drep --threads 10 ./dereplicated_genomes
-```
+cd $main_foldeer
+mkdir BAKTA_prediction
+mkdir TMP
 
-## 7) MAGs quantification
-
-Sequencing data were mapped MAGs. 
-
-a) minimap2 (v2.26-r1175)
-_Illumina_ 
-```
-minimap2 -ax sr
-```
-_Nanopore_
-```
-minimap2 -ax map-ont -L
-```
-_PacBio_ 
-```
-minimap2 -ax map-hifi -L
-```
-b) samtools (v1.3.1)<br/>
-```
-# SAM to BAM conversion
-samtools view
-
-# BAM sorting
-samtools sort
-
-# Filter for properly paired alignments and secondary elimination
-samtools view -ff 1284 
-
-# Coverage computation without any limit
-samtools coverage -d 0
+for genome in $(ls ${main_folder}/MAGs_comparision/*.fa)
+ do
+ name=$(basename genome .fa)
+ bakta --db PATH_to_BAKTA_DB --min-contig-length 200  --prefix $name --output BAKTA_prediction --tmp-dir ${main_folder}/TMP --threads 4  $genome
+ done
 ```
 
 
