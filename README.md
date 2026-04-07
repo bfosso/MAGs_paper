@@ -37,7 +37,7 @@ You can find the most appropriate info for you system [here](https://docs.conda.
 In the `VE_yaml` folder are available the different emplyed VEs. To generate it on you system, please use the following 
 line:  
 ```
-conda env create -f environment.yml
+conda env create -y -f environment.yml
 ```
 Please change `environment.yml` with the specific yaml file you want to use.  
 
