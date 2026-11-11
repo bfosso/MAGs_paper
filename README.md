@@ -1,4 +1,4 @@
-Benchmarking short and Long Read Sequencing Technologies for Metagenomic Profiling of Microbiomes
+[Benchmarking short and Long Read Sequencing Technologies for Metagenomic Profiling of Microbiomes](https://www.nature.com/articles/s41598-026-49725-3)
 =====
 
 Content:
