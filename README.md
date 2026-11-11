@@ -24,7 +24,7 @@ Marzano 2*, Graziano Pesole 1,2,3
 \* Correspondence: bruno.fosso@uniba.it (BF); m.marzano@ibiom.cnr.it (MM)
 
 -------
-Currently, the manuscript is available as _pre-print_ at DOI: [https://doi.org/10.21203/rs.3.rs-7581938/v1](https://doi.org/10.21203/rs.3.rs-7581938/v1).  
+The manuscript is available on **Scientific reports**: [https://www.nature.com/articles/s41598-026-49725-3](https://www.nature.com/articles/s41598-026-49725-3).  
 
 -------
 This repository collects bioinformatics approaches for benchmarking sequencing technologies in microbiome data assembly 
